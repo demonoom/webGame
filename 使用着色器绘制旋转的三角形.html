@@ -17,11 +17,13 @@
     const VSHADER_SOURCE =
         // 使用存储限定符定义一个接受顶点坐标的变量
         'attribute vec4 a_Position;' +
-        // 使用存储限定符定义一个接收一致偏移量的变量
-        'uniform vec4 u_Translation;' +
+        'uniform float u_CosB,u_SinB;' +
         'void main(){' +
         // 定义点的坐标并转换成变量保存
-        'gl_Position = a_Position + u_Translation;' +
+        'gl_Position.x = a_Position.x * u_CosB - a_Position.y * u_SinB;' +
+        'gl_Position.y = a_Position.x * u_SinB + a_Position.y * u_CosB;' +
+        'gl_Position.z = gl_Position.z;' +
+        'gl_Position.w = 1.0;' +
         '}';
 
     // 片段着色器变量
@@ -77,12 +79,20 @@
     gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0)
     // 开启变量值的使用
     gl.enableVertexAttribArray(a_Position)
-    // 定义各坐标点的统一偏移量
-    const Tx = 0.2, Ty = 0.3, Tz = 0.0
-    // 获取到顶点着色器中uniform变量(取得是物理地址)
-    const u_Translation = gl.getUniformLocation(shaderProgram, 'u_Translation')
-    // 将多个偏移量赋值给uniform变量
-    gl.uniform4f(u_Translation, Tx, Ty, Tz, 0.0)
+
+    // 设置需要旋转的角度
+    const ANGLE = 30.0
+    // 将角度转成弧度用于函数的计算
+    const radian = Math.PI * ANGLE / 180.0
+    // 计算并保存正弦和余弦的值
+    const cosB = Math.cos(radian)
+    const sinA = Math.sin(radian)
+    // 从顶点着色器中分别取出变量并保存
+    const u_CosB = gl.getUniformLocation(shaderProgram, 'u_CosB')
+    const u_SinB = gl.getUniformLocation(shaderProgram, 'u_SinB')
+    // 将保存好的函数值赋给变量
+    gl.uniform1f(u_CosB, cosB)
+    gl.uniform1f(u_SinB, sinA)
     // 绘制指定位置的图形
     gl.drawArrays(gl.TRIANGLES, 0, 3)
 

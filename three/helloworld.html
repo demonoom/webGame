@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body onload="init();">
+
+</body>
+<script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+<script src="http://www.wjceo.com/lib/js/libs/stats.min.js"></script>
+<script src="https://cdn.bootcss.com/dat-gui/0.7.1/dat.gui.min.js"></script>
+<script>
+    let renderer, camera, scene, geometry, material, mesh
+    let controls = {
+        positionX: 0,
+        positionY: 0,
+        positionZ: 0
+    };
+    const stats = new Stats();
+    document.body.appendChild(stats.dom)
+
+    /**
+     * 初始化渲染器
+     */
+    function initRenderer() {
+        // 实例化渲染器
+        renderer = new THREE.WebGLRenderer();
+        // 设置宽高
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // 添加到dom
+        document.body.appendChild(renderer.domElement);
+    }
+
+    /**
+     * 初始化场景
+     */
+    function initScene() {
+        scene = new THREE.Scene();
+    }
+
+    /**
+     * 初始化相机
+     */
+    function initCamera() {
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200)
+        camera.position.set(0, 0, 15)
+    }
+
+    /**
+     * 创建模型
+     */
+    function initMesh() {
+        // 创建几何体
+        geometry = new THREE.BoxGeometry(2, 2, 2)
+        // 创建材质
+        material = new THREE.MeshNormalMaterial()
+        // 组合几何体和材质
+        mesh = new THREE.Mesh(geometry, material)
+        mesh.name = 'lft'
+        mesh.position.set(3, 5, -6)
+        mesh.scale.set(2, 1, 0.5)
+        // 将mesh添加到场景
+        scene.add(mesh)
+    }
+
+    /**
+     * 运行动画
+     */
+    function animate() {
+        // 每帧模型沿x轴旋转0.01弧度
+        mesh.rotation.x += 0.01
+        // 每帧模型沿y轴旋转0.02弧度
+        mesh.rotation.y += 0.02
+        // 渲染界面
+        renderer.render(scene, camera)
+        stats.update()
+        console.log(scene.getObjectByName("lft"));
+        requestAnimationFrame(animate)
+    }
+
+
+    function init() {
+        initRenderer()
+        initScene()
+        initCamera()
+        initMesh()
+        animate()
+
+        const gui = new dat.GUI()
+        gui.add(controls, 'positionX', -1, 1).onChange(updatePosition)
+        gui.add(controls, 'positionY', -1, 1).onChange(updatePosition)
+        gui.add(controls, 'positionZ', -1, 1).onChange(updatePosition)
+    }
+
+    function updatePosition() {
+        mesh.position.set(controls.positionX, controls.positionY, controls.positionZ)
+    }
+</script>
+</html>
